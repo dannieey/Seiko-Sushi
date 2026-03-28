@@ -1,4 +1,4 @@
-const API_URL = 'https://seikosushi.onrender.com/api';
+const API_URL = 'https://seiko-sushi-backend.onrender.com';
 
 const getHeaders = () => {
     const token = localStorage.getItem('token');
