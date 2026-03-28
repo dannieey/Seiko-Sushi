@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Your Order | Seiko Sushi </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-stone-900 text-stone-100 min-h-screen font-['Inter']">
+
+    <nav class="p-6 border-b border-stone-800 flex justify-between items-center bg-stone-900/50 backdrop-blur-md">
+        <a href="index.html" class="text-2xl font-bold tracking-tighter text-red-600 font-serif">SEIKO SUSHI</a>
+        <a href="index.html" class="text-sm uppercase tracking-widest hover:text-red-500 transition">← Back to Menu</a>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-6 py-12">
+        <h1 class="text-4xl font-serif mb-10 text-center">Your Selection</h1>
+
+        <div id="cart-items" class="space-y-6 mb-10">
+            </div>
+
+        <div id="cart-summary" class="border-t border-stone-800 pt-8 hidden">
+            <div class="flex justify-between text-2xl font-serif mb-8">
+                <span>Total Amount:</span>
+                <span id="total-price" class="text-red-600">$0.00</span>
+            </div>
+            <button onclick="checkout()" class="w-full py-5 bg-red-600 hover:bg-red-700 rounded-2xl font-bold uppercase tracking-[0.2em] transition shadow-xl shadow-red-900/20">
+                Confirm Order
+            </button>
+        </div>
+
+        <div id="empty-cart" class="text-center py-20">
+            <p class="text-stone-500 mb-6 italic">Your tray is empty...</p>
+            <a href="index.html" class="text-red-600 border-b border-red-600 pb-1">Explore Menu</a>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>

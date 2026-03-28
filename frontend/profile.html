@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile | Seiko Sushi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body class="bg-stone-900 text-stone-100 min-h-screen font-['Inter']">
+    <nav class="p-6 border-b border-stone-800 flex justify-between items-center bg-stone-900/50 backdrop-blur-md">
+        <a href="index.html" class="text-2xl font-bold tracking-tighter text-red-600 font-serif">SEIKO SUSHI</a>
+        <button onclick="logout()" class="text-xs uppercase tracking-widest text-stone-500 hover:text-red-500 transition">Logout</button>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-6 py-12">
+        <div class="mb-12">
+            <h1 id="user-welcome" class="text-4xl font-serif mb-2">Kon'nichiwa, Guest</h1>
+            <p class="text-stone-500 uppercase tracking-widest text-xs">Your Order History</p>
+        </div>
+
+        <div id="orders-list" class="space-y-4">
+            <p class="text-stone-600 italic">Loading your history...</p>
+        </div>
+    </main>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Простая логика профиля прямо здесь или в отдельном файле
+        async function loadProfile() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (!user) window.location.href = 'login.html';
+            document.getElementById('user-welcome').innerText = `Kon'nichiwa, ${user.username}`;
+
+            try {
+                const res = await fetch(`${API_URL}/orders/myorders`, { headers: getHeaders() });
+                const orders = await res.json();
+                const list = document.getElementById('orders-list');
+
+                if (orders.length === 0) {
+                    list.innerHTML = '<p class="text-stone-600">No orders yet. Time to try some sushi!</p>';
+                    return;
+                }
+
+                list.innerHTML = orders.map(order => `
+                    <div class="bg-stone-800/20 border border-stone-800 p-6 rounded-2xl flex justify-between items-center">
+                        <div>
+                            <p class="text-xs text-stone-500 mb-1 tracking-tighter">Order ID: ${order._id}</p>
+                            <p class="font-bold text-red-500 uppercase text-sm">${order.status}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-serif italic">${new Date(order.createdAt).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) { console.error(err); }
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+        loadProfile();
+    </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel | Seiko Sushi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-900 text-stone-100 p-10">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-3xl font-serif">Manage Menu</h1>
+            <a href="index.html" class="text-stone-400">← Back to Site</a>
+        </div>
+
+        <form id="add-item-form" class="bg-stone-800 p-6 rounded-2xl mb-12 space-y-4">
+            <h2 class="text-xl mb-4 text-red-500 font-bold">Add New Dish</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="name" placeholder="Name" class="bg-stone-900 p-3 rounded-lg outline-none" required>
+                <input type="number" id="price" placeholder="Price ($)" class="bg-stone-900 p-3 rounded-lg outline-none" required>
+                <select id="category" class="bg-stone-900 p-3 rounded-lg outline-none">
+                    <option value="Sushi">Sushi</option>
+                    <option value="Hot Dishes">Hot Dishes</option>
+                    <option value="Desserts">Desserts</option>
+                </select>
+                <input type="text" id="image" placeholder="Image URL" class="bg-stone-900 p-3 rounded-lg outline-none">
+            </div>
+            <textarea id="description" placeholder="Description" class="w-full bg-stone-900 p-3 rounded-lg h-24 outline-none"></textarea>
+<input type="hidden" id="item-id"> ```
+
+
+            <button type="submit" id="submit-btn" class="w-full bg-red-600 py-3 rounded-lg font-bold uppercase tracking-widest">
+                Add to Menu
+            </button>
+            <button type="button" id="cancel-edit" class="w-full mt-2 text-stone-500 hidden" onclick="resetForm()">
+                Cancel Edit
+            </button>
+        </form>
+
+        <div id="admin-menu-list" class="space-y-4">
+            </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        // Логика загрузки и удаления блюд (только для админа)
+        async function loadAdminMenu() {
+            const res = await fetch(`${API_URL}/menu`);
+            const items = await res.json();
+            const list = document.getElementById('admin-menu-list');
+
+            // Внутри loadAdminMenu() измени map:
+            list.innerHTML = items.map(item => {
+                const itemData = encodeURIComponent(JSON.stringify(item));
+                return `
+                    <div class="flex justify-between items-center bg-stone-800/40 p-4 rounded-xl border border-stone-800">
+                        <div>
+                            <p class="font-bold">${item.name}</p>
+                            <p class="text-xs text-stone-500">${item.category}</p>
+                        </div>
+                        <div class="space-x-4">
+                            <button onclick="editItem('${itemData}')" class="text-blue-500 hover:underline">Edit</button>
+                            <button onclick="deleteItem('${item._id}')" class="text-red-500 hover:underline">Delete</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function deleteItem(id) {
+            if(!confirm('Delete this item?')) return;
+            const res = await fetch(`${API_URL}/menu/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders()
+            });
+            if(res.ok) loadAdminMenu();
+        }
+
+        // Логика добавления нового блюда
+        document.getElementById('add-item-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const itemId = document.getElementById('item-id').value;
+
+            const itemData = {
+                name: document.getElementById('name').value,
+                price: Number(document.getElementById('price').value),
+                category: document.getElementById('category').value,
+                description: document.getElementById('description').value,
+                image: document.getElementById('image').value
+            };
+
+            // Если itemId есть — это PUT (обновление), если нет — POST (создание)
+            const method = itemId ? 'PUT' : 'POST';
+            const url = itemId ? `${API_URL}/menu/${itemId}` : `${API_URL}/menu`;
+
+            const res = await fetch(url, {
+                method: method,
+                headers: getHeaders(),
+                body: JSON.stringify(itemData)
+            });
+
+            if (res.ok) {
+                alert(itemId ? 'Updated!' : 'Added!');
+                resetForm();
+                loadAdminMenu();
+            }
+        };
+        function editItem(itemJson) {
+            const item = JSON.parse(decodeURIComponent(itemJson));
+
+            // Заполняем поля формы данными блюда
+            document.getElementById('item-id').value = item._id;
+            document.getElementById('name').value = item.name;
+            document.getElementById('price').value = item.price;
+            document.getElementById('category').value = item.category;
+            document.getElementById('description').value = item.description;
+            document.getElementById('image').value = item.image;
+
+            // Меняем интерфейс
+            document.getElementById('submit-btn').innerText = 'Update Dish';
+            document.getElementById('submit-btn').classList.replace('bg-red-600', 'bg-blue-600');
+            document.getElementById('cancel-edit').classList.remove('hidden');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' }); // Скролл к форме
+        }
+
+        function resetForm() {
+            document.getElementById('add-item-form').reset();
+            document.getElementById('item-id').value = '';
+            document.getElementById('submit-btn').innerText = 'Add to Menu';
+            document.getElementById('submit-btn').classList.replace('bg-blue-600', 'bg-red-600');
+            document.getElementById('cancel-edit').classList.add('hidden');
+        }
+        loadAdminMenu();
+    </script>
+</body>
+</html>
+
